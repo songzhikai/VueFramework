@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <el-container class="full-pre" v-if="isFramework">
-      <el-aside :style="{'width':isChangeWidth ? '50px' : '240px'}">
+      <el-aside :style="{'width':isChangeWidth ? '70px' : '240px', 'height': '400px;'}">
         <LeftMenu></LeftMenu>
       </el-aside>
       <el-container>
@@ -79,8 +79,12 @@
     mounted:function(){
       let _this = this;
       this.dispatch();
-      EventBus.$on('OpenMenuEvent', function(isCollapse){
-          _this.isChangeWidth = isCollapse;
+      EventBus.$on('OpenMenuEvent', function(width){
+        if(width == '50px'){
+          _this.isChangeWidth = true
+        }else if(width == '240px'){
+          _this.isChangeWidth = false
+        }
       });
 
     }

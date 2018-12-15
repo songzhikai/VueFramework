@@ -6,7 +6,7 @@
 
 <script>
     export default {
-      name: "test-dataset",
+      name: "testDataset",
       methods:{
         /*
         以下6个方法均为ES6语法，IE9及以上才支持。不过可以通过babel转意支持IE低版本。

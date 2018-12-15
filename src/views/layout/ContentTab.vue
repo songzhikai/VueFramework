@@ -1,15 +1,15 @@
 <template>
   <div class="full-pre">
-        <el-tabs v-model="activeTab" type="card" closable @tab-remove="removeTabByName" @tab-click="tabClick" class="layout-tabs">
-            <el-tab-pane v-for="(item, index) in tabs" :key="item.index" :label="item.title" :name="item.router"></el-tab-pane>
-        </el-tabs>
-        <el-scrollbar class="flow-x-scrollbar" :style="{ height : scrollHeight + 'px'}">
-        <div class="contents">
-              <keep-alive :exclude="excludeView">
-                <router-view></router-view>
-              </keep-alive>
-        </div>
-        </el-scrollbar>
+      <el-tabs v-model="activeTab" type="card" closable @tab-remove="removeTabByRouterPath" @tab-click="tabClick" class="layout-tabs">
+          <el-tab-pane v-for="(item, index) in tabs" :key="item.index" :label="item.title" :name="item.router"></el-tab-pane>
+      </el-tabs>
+      <el-scrollbar class="flow-x-scrollbar" :style="{ height : scrollHeight + 'px'}">
+      <div class="contents">
+          <keep-alive :include="includeKeepAliveCompNames">
+            <router-view></router-view>
+          </keep-alive>
+      </div>
+      </el-scrollbar>
   </div>
 </template>
 
@@ -24,11 +24,16 @@
   export default {
     data() {
       return {
-        activeTab:"",
+        tabs: [], //tab数组 结构[{router: '/xxxx/xxxx/xxxx', title: 'xxxx'}, {router: '', title: ''}]
+        activeTab:"",  //path的值
         scrollHeight:window.innerHeight -80,
+        includeKeepAliveCompNames: []
       }
     },
     methods: {
+      ...mapMutations([
+        'removeTab','setCurrentActiveMenu','editIncludeKeepAliveCompNames','addTab','setTabs'
+      ]),
       /**
        * tab页头点击事件
        * @param tabObj
@@ -41,20 +46,35 @@
        * 关闭tab页
        * @param tabObj
        */
-      removeTabByName(targetName) {
-        let tabs = this.tabs;
-        let activeName = this.activeTab;
-        if (activeName === targetName) {
-          tabs.forEach((tab, index) => {
-            if (tab.router === targetName) {
-              let nextTab = tabs[index + 1] || tabs[index - 1];
-              if (nextTab) {
-                activeName = nextTab.router;
+      removeTabByRouterPath(targetName) {
+        let _this = this
+        if(this.tabs.length == 1){
+          this.$router.push('/')
+        }else{
+          if(targetName == this.activeTab){ //当前删除的是选中的tab
+            for(let [i, v] of this.tabs.entries()){
+              if(v.router == targetName){
+                if(i == 0){
+                  this.activeTab = this.tabs[1].router
+                }else{
+                  this.activeTab = this.tabs[i-1].router
+                }
               }
             }
-          });
+          }else{
+            for(let [i, v] of this.tabs.entries()){
+              if(v.router == targetName ){
+                if(i == 0){
+                  this.activeTab = this.tabs[1].router
+                }else if(i < this.tabs.length-1){
+                  this.activeTab = this.tabs[i+1].router
+                }
+                break;
+              }
+            }
+          }
         }
-        this.activeTab = activeName;
+        this.tabs = this.tabs.filter(tab => tab.router != targetName)
         this.removeTab(targetName);
         if(this.tabs.length==0){
           this.setCurrentActiveMenu((new Date()).getTime()+"")//设置选中菜单为一个不存在的菜单，让左侧菜单取消选中
@@ -62,57 +82,62 @@
           this.setCurrentActiveMenu(this.activeTab);
           this.$router.push(this.activeTab);
         }
-        let routerLevel1 = targetName.substring(1);
-        routerLevel1 = routerLevel1.substring(0,routerLevel1.indexOf("/")==-1?routerLevel1.length:routerLevel1.indexOf("/"))
-        this.$router.options.routes.map(routeItem=>{
-          if(routeItem.path == "/"+routerLevel1){
-            this.addExcludeView(routeItem.component.name)//关闭tab页时，添加缓存例外
+
+        //关闭tab页时，更新缓存组件
+        let includeKeepAliveCompNames = this.$store.state.app.includeKeepAliveCompNames;
+        let route = {}
+        for(let [i,v] of _this.$router.options.routes.entries()){
+          if(v.path == targetName){
+            route = v
+            break;
           }
-        });
-        // 关闭tab页提交事件
-        EventBus.$emit("closeCurentMenu",this.activeTab)
-        if( this.tabs.length==0){
-          this.$router.push("/")
         }
+        _this.includeKeepAliveCompNames = includeKeepAliveCompNames.filter( item => item != route.name)
+        _this.editIncludeKeepAliveCompNames(_this.includeKeepAliveCompNames);
       },
       dealTabs(to){
+        let _this = this
         if(to.path=="/"){
           this.setTabs([]);
         }else{
-          // let routeExist = false;
-          // for(let i=0;i<this.tabs.length;i++){
-          //   if(this.tabs[i].router==to.path){
-          //     routeExist = true;
-          //     break;
-          //   }
-          // }
-          // if(!routeExist){
-          //   menuModule.menus.forEach((obj,index)=>{
-          //     if(obj.sub==undefined){
-          //       if(to.path == obj.path){
-          //         this.addTab({router:to.path, title:obj.menuName});
-          //         this.activeTab = to.path;
-          //         this.setCurrentActiveMenu(to.path);
-          //       }
-          //     }else{
-          //       obj.sub.forEach((subObj,subIndex)=>{
-          //         if(to.path == subObj.path){
-          //           this.addTab({router:to.path, title:subObj.menuName});
-          //           this.activeTab = to.path;
-          //           this.setCurrentActiveMenu(to.path);
-          //         }
-          //       })
-          //     }
-          //   })
-          // }
+          this.tabs = this.$store.state.app.tabs;
+          let routeExist = false;
+          for(let i=0;i<this.tabs.length;i++){
+            if(this.tabs[i].router==to.path){
+              _this.activeTab = this.tabs[i].router
+              routeExist = true;
+              break;
+            }
+          }
+
+          if(!routeExist){
+            menuModule.menus.forEach((obj,index)=>{
+              if(obj.sub==undefined){
+                if(to.path == obj.path){
+                  this.addTab({router:to.path, title:obj.menuName});
+                  this.activeTab = to.path;
+                  this.setCurrentActiveMenu(to.path);
+                }
+              }else{
+                obj.sub.forEach((subObj,subIndex)=>{
+                  if(to.path == subObj.path){
+                    this.addTab({router:to.path, title:subObj.menuName});
+                    this.activeTab = to.path;
+                    this.setCurrentActiveMenu(to.path);
+                  }
+                })
+              }
+            })
+          }
         }
       },
-      ...mapMutations([
-        'removeTab','setCurrentActiveMenu','addExcludeView','addTab','setTabs'
-      ])
+      init(){
+        this.includeKeepAliveCompNames = this.$store.state.app.includeKeepAliveCompNames
+      }
     },
     mounted:function(){
       var _this = this;
+      this.init();
       //添加事件监听activeTabChange，左侧菜单点击时触发，设置当前激活的tab页
       EventBus.$on("activeTabChange",function(tabName){
         _this.activeTab=tabName;
@@ -130,13 +155,18 @@
       }
       this.dealTabs({path:this.$route.path});
     },
-    computed:{
-      ...mapState([
-        'tabs','excludeView'
-      ])
-    },
     watch: {
       '$route': function(to,from){
+        //路由变化，增加缓存组件
+        let includeKeepAliveCompNames = this.$store.state.app.includeKeepAliveCompNames;
+        let resIncludeKeepAliveCompNames = []
+        includeKeepAliveCompNames.forEach(comName => {
+          if(comName != to.name){
+            resIncludeKeepAliveCompNames.push(comName)
+          }
+        })
+        resIncludeKeepAliveCompNames.push(to.name)
+        this.editIncludeKeepAliveCompNames(resIncludeKeepAliveCompNames)
         this.dealTabs(to);
       }
     }

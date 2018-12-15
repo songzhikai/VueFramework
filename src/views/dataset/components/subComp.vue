@@ -1,5 +1,7 @@
 <template>
-
+  <div>
+    子组件
+  </div>
 </template>
 
 <script>
@@ -13,11 +15,11 @@
       },
       watch:{
         'fieldId'(){
-          console.log(this.fieldId);
+          // console.log(this.fieldId);
         }
       },
       mounted(){
-        console.log(this.fieldId);
+        // console.log(this.fieldId);
       }
     }
 </script>

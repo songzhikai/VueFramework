@@ -15,15 +15,13 @@
         </el-submenu>
         <el-menu-item :index="item.path" v-else>
           <i class="iconfont icon-ceng"></i>
-          <span>{{item.menuName}}</span>
+          <span>{{item.menuName}} </span>
         </el-menu-item>
       </template>
     </el-menu>
     </el-scrollbar>
-    <el-radio-group v-model="isCollapse" @change="openMenu" class="expand-menu-control" :style="{'width':isCollapse ? '50px' : '240px'}">
-      <el-radio-button :label="false" v-show="isCollapse"><i class="el-icon-arrow-right"></i></el-radio-button>
-      <el-radio-button :label="true" v-show="!isCollapse"><i class="el-icon-arrow-left"></i></el-radio-button>
-    </el-radio-group>
+    <i v-show="isCollapse" class="el-icon-arrow-right" @click="openMenu('240px')"></i>
+    <i v-show="!isCollapse" class="el-icon-arrow-left" @click="openMenu('50px')"></i>
   </div>
 </template>
 
@@ -39,7 +37,7 @@ export default {
       return {
         menus:menuModule.menus,
         isCollapse: false,
-        scrollHeight:window.innerHeight -80,
+        scrollHeight:window.innerHeight -100,
       }
     },
     methods: {
@@ -65,8 +63,9 @@ export default {
 
         }
       },
-      openMenu(){
-        EventBus.$emit('OpenMenuEvent',this.isCollapse)
+      openMenu(width){
+        this.isCollapse = !this.isCollapse
+        EventBus.$emit('OpenMenuEvent', width)
       },
 
       /**
@@ -74,11 +73,11 @@ export default {
        * @param index
        * @param indexPath
        */
-       handleOpen(index, indexPath) {
-        console.log('open');
+      handleOpen(index, indexPath) {
+        // console.log('open');
       },
       handleClose(index, indexPath) {
-        console.log('close');
+        // console.log('close');
       },
       selectMenu(index, indexPath) {
          let routerLevel1 = index.substring(1);
@@ -135,3 +134,5 @@ export default {
 }
 
 </script>
+<style>
+</style>

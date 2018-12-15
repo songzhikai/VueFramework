@@ -1,10 +1,10 @@
 const app = {
   state: {
-    epmToken: '',
+    token: '',
     tabs: [], //已添加的tab页
-    currentActiveMenu: "11",//当前激活的菜单
-    excludeView: [],//路由缓存例外数组
-    currentEditComp: null,
+    currentActiveMenu: "/xx/xx/xx", //当前激活的菜单
+    includeKeepAliveCompNames: [], //路由缓存数组 [compname1, compname2]
+    currentEditComp: null
   },
   mutations: {
     /**
@@ -43,9 +43,9 @@ const app = {
      * @param state
      * @param menuName
      */
-    setCurrentActiveMenu(state,menuName){
-      state.currentActiveMenu = menuName
-      sessionStorage.setItem("currentActiveMenu",menuName);
+    setCurrentActiveMenu(state,path){
+      state.currentActiveMenu = path
+      sessionStorage.setItem("currentActiveMenu",path);
     },
     /**
      * 添加路由缓存例外，关闭tab页时添加
@@ -56,6 +56,14 @@ const app = {
       if(state.excludeView.indexOf(viewName)==-1){
         state.excludeView.push(viewName)
       }
+    },
+    /**
+     * 更新缓存的组件
+     * @param state
+     * @param compName
+     */
+    editIncludeKeepAliveCompNames(state, includeKeepAliveCompNames) {
+      state.includeKeepAliveCompNames = includeKeepAliveCompNames
     },
     /**
      * 删除路由缓存例外，打开tab页时添加

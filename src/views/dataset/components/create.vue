@@ -1,6 +1,6 @@
 <template>
     <div>
-      <el-button @click="changeValue">点我</el-button>
+      <!--<el-button @click="changeValue">点我</el-button>-->
       <SubComp :fieldId="fieldId"></SubComp>
     </div>
 </template>
@@ -8,7 +8,7 @@
 <script>
     import SubComp from './subComp'
     export default {
-      name: "create",
+      name: "datasetCreate",
       components:{
         SubComp
       },
