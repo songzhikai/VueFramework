@@ -82,18 +82,8 @@
           this.setCurrentActiveMenu(this.activeTab);
           this.$router.push(this.activeTab);
         }
-
         //关闭tab页时，更新缓存组件
-        let includeKeepAliveCompNames = this.$store.state.app.includeKeepAliveCompNames;
-        let route = {}
-        for(let [i,v] of _this.$router.options.routes.entries()){
-          if(v.path == targetName){
-            route = v
-            break;
-          }
-        }
-        _this.includeKeepAliveCompNames = includeKeepAliveCompNames.filter( item => item != route.name)
-        _this.editIncludeKeepAliveCompNames(_this.includeKeepAliveCompNames);
+        this.editIncludeKeepAliveCompNames(this.tabs.filter(item => item.name))
       },
       dealTabs(to){
         let _this = this
@@ -114,14 +104,14 @@
             menuModule.menus.forEach((obj,index)=>{
               if(obj.sub==undefined){
                 if(to.path == obj.path){
-                  this.addTab({router:to.path, title:obj.menuName});
+                  this.addTab({router:to.path, title:obj.menuName, name: to.name});
                   this.activeTab = to.path;
                   this.setCurrentActiveMenu(to.path);
                 }
               }else{
                 obj.sub.forEach((subObj,subIndex)=>{
                   if(to.path == subObj.path){
-                    this.addTab({router:to.path, title:subObj.menuName});
+                    this.addTab({router:to.path, title:subObj.menuName, name: to.name});
                     this.activeTab = to.path;
                     this.setCurrentActiveMenu(to.path);
                   }
@@ -130,6 +120,7 @@
             })
           }
         }
+        this.editIncludeKeepAliveCompNames(this.tabs.filter(item => item.name))
       },
       init(){
         this.includeKeepAliveCompNames = this.$store.state.app.includeKeepAliveCompNames
@@ -157,16 +148,6 @@
     },
     watch: {
       '$route': function(to,from){
-        //路由变化，增加缓存组件
-        let includeKeepAliveCompNames = this.$store.state.app.includeKeepAliveCompNames;
-        let resIncludeKeepAliveCompNames = []
-        includeKeepAliveCompNames.forEach(comName => {
-          if(comName != to.name){
-            resIncludeKeepAliveCompNames.push(comName)
-          }
-        })
-        resIncludeKeepAliveCompNames.push(to.name)
-        this.editIncludeKeepAliveCompNames(resIncludeKeepAliveCompNames)
         this.dealTabs(to);
       }
     }

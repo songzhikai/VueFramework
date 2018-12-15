@@ -17,6 +17,9 @@
       }
     },
     methods: {
+      ...mapMutations([
+        'removeTab','setCurrentActiveMenu','editIncludeKeepAliveCompNames'
+      ]),
       /**
        * tab页头点击事件
        * @param tabObj
@@ -29,7 +32,8 @@
        * 关闭tab页
        * @param tabObj
        */
-      removeTabByName(targetName) {
+      removeTabByRouterPath(targetName) {
+        let _this = this
         let tabs = this.tabs;
         let activeName = this.activeTab;
         if (activeName === targetName) {
@@ -50,14 +54,19 @@
           this.setCurrentActiveMenu("/"+this.activeTab);
           this.$router.push("/"+this.activeTab);
         }
-        this.addExcludeView(targetName)//添加缓存例外
+        //关闭tab页时，更新缓存组件
+        let includeKeepAliveCompNames = this.$store.state.app.includeKeepAliveCompNames;
+        let route = {}
+        for(let [i,v] of _this.$router.options.routes.entries()){
+          if(v.path == targetName){
+            route = v
+            break;
+          }
+        }
+        _this.includeKeepAliveCompNames = includeKeepAliveCompNames.filter( item => item != route.name)
+        _this.editIncludeKeepAliveCompNames(_this.includeKeepAliveCompNames);
 
-        // 关闭tab页提交事件
-        EventBus.$emit("closeCurentMenu",this.activeTab)
       },
-      ...mapMutations([
-        'removeTab','setCurrentActiveMenu','addExcludeView'
-      ])
     },
     mounted:function(){
       var _this = this;
@@ -70,9 +79,6 @@
       reouterViewVisiable:function(){
         return this.tabs.length>0
       },
-      ...mapState([
-        'tabs','excludeView'
-      ])
     },
     watch: {
       //监听路由变化，如果刷新的是当前路由，就调用this.$router.go(0);强制刷新（路由path相同，但参数不同，fullPath要不相同才能进来）
