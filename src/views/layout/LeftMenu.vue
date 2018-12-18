@@ -89,14 +89,9 @@ export default {
          };
          this.addTab(tabObj);
          EventBus.$emit("activeTabChange",index);//激活当前选择菜单对应的tab
-         this.$router.options.routes.map(routeItem=>{
-           if(routeItem.path == "/"+routerLevel1){
-             this.removeExcludeView(routeItem.component.name);
-           }
-         });
       },
       ...mapMutations([
-        'addTab','removeExcludeView'
+        'addTab'
       ])
     },
     mounted:function(){

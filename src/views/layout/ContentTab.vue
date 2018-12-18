@@ -4,11 +4,11 @@
           <el-tab-pane v-for="(item, index) in tabs" :key="item.index" :label="item.title" :name="item.router"></el-tab-pane>
       </el-tabs>
       <el-scrollbar class="flow-x-scrollbar" :style="{ height : scrollHeight + 'px'}">
-      <div class="contents">
-          <keep-alive :include="includeKeepAliveCompNames">
-            <router-view></router-view>
-          </keep-alive>
-      </div>
+        <div class="contents">
+            <keep-alive :include="includeKeepAliveCompNames">
+              <router-view></router-view>
+            </keep-alive>
+        </div>
       </el-scrollbar>
   </div>
 </template>

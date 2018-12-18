@@ -18,7 +18,7 @@ const store = new Vuex.Store({
   },
   modules: {
     app,
-    dataset
+    dataset,
   },
 })
 

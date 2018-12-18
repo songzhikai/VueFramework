@@ -19,7 +19,19 @@ const menuObj = {
         {
           menuName: '测试数据集列表',
           path: '/test/testDataset'
-        }
+        },
+        {
+          menuName: '测试form',
+          path: '/test/testForm'
+        },
+        {
+          menuName: '测试tree',
+          path: '/test/testTree'
+        },
+        {
+          menuName: '测试select',
+          path: '/test/testSelect'
+        },
       ]
     }
   ]
