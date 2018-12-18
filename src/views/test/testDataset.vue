@@ -1,13 +1,52 @@
 <template>
   <div>
-    test
+    <input type="text" v-focus="{text: 'aaaa'}">
+    <button v-demo="styleCtrl">请点击我</button>
+    <button @click="changeColor">改变颜色</button>
   </div>
 </template>
 
 <script>
     export default {
-      name: "testDataset",
+      data(){
+        return {
+          styleCtrl:'red'
+        }
+      },
+      directives: {
+        focus: {
+          // 指令的定义
+          inserted: function (el) {
+            el.focus()
+          },
+          bind: function (el, binding, vnode) {
+            // alert(binding.value.text);
+          }
+        },
+        click:{
+          inserted(el){
+            // alert(1);
+          },
+          bind(el, binding, vnode){
+
+          }
+        },
+        demo:{
+          inserted(el, binding){
+            el.style.color = 'green';
+          },
+          bind(el, binding){
+            el.style.color = binding.value;
+          },
+          update(el, binding){
+            el.style.color = binding.value;
+          }
+        }
+      },
       methods:{
+        changeColor(){
+          this.styleCtrl = 'yellow'
+        },
         /*
         以下6个方法均为ES6语法，IE9及以上才支持。不过可以通过babel转意支持IE低版本。
         以上均不改变原数组。
@@ -75,7 +114,7 @@
         }
       },
       mounted(){
-        this.testEvery();
+        // this.testMap();
       }
     }
 </script>
